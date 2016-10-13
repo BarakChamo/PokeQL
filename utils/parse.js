@@ -2,7 +2,7 @@
   Parse CSV Files
 */
 
-import LineByLineReader from 'line-by-line'
+var LineByLineReader = require('line-by-line') 
 
 function mapCsvRow(headers, record) {
   return record.reduce((p, c, i) => {

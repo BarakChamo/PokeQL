@@ -2,14 +2,17 @@
   Map Data from PokeAPI
 */
 
-import { parseList, parseObject } from '../utils/parse'
+var parse = require('../utils/parse')
 
-const log = l => (() => console.log(l)) //eslint-disable-line
+var parseList = parse.parseList
+var parseObject = parse.parseObject
+
+var log = l => (() => console.log(l)) //eslint-disable-line
 
 // Load data in-memory (i know...)
-const data = { tables: {}, sets: {} }
+var data = { tables: {}, sets: {} }
 
-const promise = Promise.all([
+var promise = Promise.all([
   parseList('node_modules/pokeapi/data/v2/csv/pokemon.csv')
     .then((pokemon) => { data.tables.pokemon = pokemon })
     .then(log('Pokemon loaded...')),

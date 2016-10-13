@@ -2,7 +2,7 @@
   Mock Data Fetching Handlers
 */
 
-import { data } from '../data'
+var data = require('../data').data
 
 /*
  * Pokemon
