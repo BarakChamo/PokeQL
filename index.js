@@ -13,7 +13,7 @@ function startGraphQLServer(callback) {
 
   const app = express()
 
-  app.use('/graph', graphQLHTTP({
+  app.use('/', graphQLHTTP({
     graphiql: true,
     pretty: true,
     schema: Schema,
