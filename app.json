@@ -1,0 +1,7 @@
+{
+  "name": "PokeQL",
+  "description": "A GraphQL implementation of the Pokemon API",
+  "repository": "https://github.com/heroku/node-js-sample",
+  "logo": "https://node-js-sample.herokuapp.com/node.png",
+  "keywords": ["node", "pokemon", "graphql", "express"]
+}

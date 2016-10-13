@@ -1,0 +1,39 @@
+{
+  "name": "pokeql",
+  "version": "1.0.0",
+  "description": "A GraphQL implementation of the Pokemon API",
+  "main": "index.js",
+  "scripts": {
+    "start": "./node_modules/.bin/babel-node index.js",
+    "update-schema": "babel-node ./tools/update-schema.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws": "0.0.3-2",
+    "babel-plugin-syntax-async-functions": "^6.13.0",
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-preset-react": "^6.16.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "babel-relay-plugin": "^0.9.3",
+    "chokidar": "^1.6.0",
+    "csv": "^1.1.0",
+    "express": "^4.14.0",
+    "express-graphql": "^0.5.4",
+    "graphql": "^0.7.2",
+    "graphql-relay": "^0.4.3",
+    "line-by-line": "^0.1.5",
+    "pokeapi": "git+https://github.com/PokeAPI/pokeapi.git",
+    "require-clean": "^0.1.3",
+    "stream-transform": "^0.1.1"
+  },
+  "devDependencies": {
+    "eslint": "^3.7.0",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-plugin-import": "^1.16.0",
+    "eslint-plugin-jsx-a11y": "^2.2.2",
+    "eslint-plugin-react": "^6.3.0"
+  }
+}
