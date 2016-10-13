@@ -235,6 +235,9 @@ const Pokemon = new GraphQLObjectType({
       description: 'The types of the Pokemon',
       resolve: pokemon => getPokemonTypes(pokemon),
     },
+    // primitive: {
+    //
+    // },
     evolution: {
       type: new GraphQLList(Evolution), //eslint-disable-line
       description: 'The potential evolutions of the Pokemon',
