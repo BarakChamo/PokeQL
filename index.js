@@ -8,7 +8,9 @@ const graphQLHTTP = require('express-graphql')
 // const exec = require('child_process').exec
 
 const data = require('./data')
-
+console.log('WAAATTTT')
+console.log('WAAATTTT')
+console.log('WAAATTTT')
 const PORT = process.env.PORT || 8000
 let server
 
