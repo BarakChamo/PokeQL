@@ -23,6 +23,16 @@ import {
 
 
 /*
+ * Utils
+ */
+
+const idToName = id => id
+  .replace('-', ' ')
+  .replace(/\w\S*/g, txt => (txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()))
+
+
+
+/*
  * Type Enum
  */
 
@@ -37,7 +47,7 @@ const Type = new GraphQLObjectType({
     name: {
       type: GraphQLString,
       description: 'The name of a type',
-      resolve: type => type.identifier,
+      resolve: type => idToName(type.identifier),
     },
     pokemon: {
       type: new GraphQLList(Pokemon),
@@ -179,7 +189,7 @@ const Item = new GraphQLObjectType({
     name: {
       type: GraphQLString,
       description: 'The name of the item',
-      resolve: item => item.identifier,
+      resolve: item => idToName(item.identifier),
     },
   }),
 })
@@ -220,7 +230,7 @@ const Pokemon = new GraphQLObjectType({
     name: {
       type: GraphQLString,
       description: 'The name of the Pokemon',
-      resolve: pokemon => pokemon.identifier,
+      resolve: pokemon => idToName(pokemon.identifier),
     },
     gender: {
       type: Gender,
