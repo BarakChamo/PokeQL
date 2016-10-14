@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const Schema = require('../schema').Schema
+const Schema = require('../schema/schema').default
 const graphql = require('graphql').graphql
 const introspectionQuery = require('graphql/utilities').introspectionQuery
 const printSchema = require('graphql/utilities').printSchema

@@ -2,9 +2,11 @@
   "name": "pokeql",
   "version": "1.0.0",
   "description": "A GraphQL implementation of the Pokemon API",
-  "main": "index.js",
+  "main": "bin/index.js",
   "scripts": {
-    "start": "./node_modules/.bin/babel-node index.js",
+    "start": "node bin/",
+    "dev": "./node_modules/.bin/babel-node index.js",
+    "build": "webpack --config=webpack.config.js",
     "update-schema": "babel-node ./tools/update-schema.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,6 +15,7 @@
   "dependencies": {
     "aws": "0.0.3-2",
     "babel-cli": "^6.16.0",
+    "babel-loader": "^6.2.5",
     "babel-plugin-syntax-async-functions": "^6.13.0",
     "babel-plugin-transform-async-to-generator": "^6.16.0",
     "babel-preset-es2015": "^6.16.0",
@@ -25,10 +28,12 @@
     "express-graphql": "^0.5.4",
     "graphql": "^0.7.2",
     "graphql-relay": "^0.4.3",
+    "json-loader": "^0.5.4",
     "line-by-line": "^0.1.5",
     "pokeapi": "git+https://github.com/PokeAPI/pokeapi.git",
     "require-clean": "^0.1.3",
-    "stream-transform": "^0.1.1"
+    "stream-transform": "^0.1.1",
+    "webpack": "^1.13.2"
   },
   "devDependencies": {
     "eslint": "^3.7.0",

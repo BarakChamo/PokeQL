@@ -1,65 +1,202 @@
-# An object with an ID
-interface Node {
-  # The id of the object.
-  id: ID!
-}
-
-# Information about pagination in a connection.
-type PageInfo {
-  # When paginating forwards, are there more items?
-  hasNextPage: Boolean!
-
-  # When paginating backwards, are there more items?
-  hasPreviousPage: Boolean!
-
-  # When paginating backwards, the cursor to continue.
-  startCursor: String
-
-  # When paginating forwards, the cursor to continue.
-  endCursor: String
-}
-
-type Query {
-  # Fetches an object given its ID
-  node(
-    # The ID of an object
-    id: ID!
-  ): Node
-  viewer: User
-}
-
-# A person who uses our app
-type User implements Node {
-  # The ID of an object
-  id: ID!
-
-  # A person's collection of widgets
-  widgets(after: String, first: Int, before: String, last: Int): WidgetConnection
-}
-
-# A shiny widget
-type Widget implements Node {
-  # The ID of an object
-  id: ID!
-
-  # The name of the widget
+# An Ability
+type Ability {
+  # The name of the ability
   name: String
 }
 
-# A connection to a list of items.
-type WidgetConnection {
-  # Information to aid in pagination.
-  pageInfo: PageInfo!
-
-  # A list of edges.
-  edges: [WidgetEdge]
+enum ElementalStone {
+  FIRE
+  WATER
+  THUNDER
+  LEAF
+  MOON
+  SUN
+  SHINY
+  DUSK
 }
 
-# An edge in a connection.
-type WidgetEdge {
-  # The item at the end of the edge
-  node: Widget
+# An Evolution
+type Evolution {
+  # The Pokemon evolving to
+  pokemon: Pokemon
 
-  # A cursor for use in pagination
-  cursor: String!
+  # The evolution trigger
+  trigger: EvolutionTrigger
+
+  # The required item
+  item: Item
+
+  # The required level
+  level: Int
+
+  # If happiness required
+  happiness: Int
+}
+
+enum EvolutionTrigger {
+  LEVELUP
+  TRADE
+  USEITEM
+  SHED
+}
+
+# An evolution mutation
+type Evolve {
+  # The evolved pokemon
+  pokemon: Pokemon
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+# An Item
+type Item {
+  # The ID of the item
+  id: ID
+
+  # The cost of the item
+  cost: Int
+
+  # The name of the item
+  name: String
+}
+
+# A Move
+type Move {
+  # The type of the move
+  type: Type
+
+  # The category of the move
+  category: MoveCategory
+
+  # The power of the move
+  power: Float
+
+  # The accuracy of the move
+  accuracy: Float
+
+  # The power point of the move
+  pp: Float
+
+  # The probability of the move
+  probability: Float
+}
+
+enum MoveCategory {
+  STATUS
+  PHYSICAL
+  SPECIAL
+}
+
+# The mutation entrypoint
+type Mutation {
+  # Evolve a Pokemon
+  evolve: Evolve
+}
+
+# A Pokemon
+type Pokemon {
+  # The id of the Pokemon
+  id: ID
+
+  # The species of the Pokemon
+  species: Species
+
+  # The name of the Pokemon
+  name: String
+
+  # The required gender
+  gender: Gender
+
+  # Is Mega Pokemon
+  mega: Boolean
+
+  # The types of the Pokemon
+  types: [Type]
+
+  # The potential evolutions of the Pokemon
+  evolution: [Evolution]
+
+  # The moves of the Pokemon
+  abilities: [Move]
+
+  # The abilities of the Pokemon
+  moves: [Ability]
+
+  # The height of the Pokemon
+  height: Float
+
+  # The weight of the Pokemon
+  weight: Float
+
+  # The HP of the Pokemon
+  health: Float
+
+  # The Attack of the Pokemon
+  attack: Float
+
+  # The Defense of the Pokemon
+  defense: Float
+
+  # The Special Attack of the Pokemon
+  specialAttack: Float
+
+  # The Special Defense of the Pokemon
+  specialDefense: Float
+
+  # The Speed of the Pokemon
+  speed: Float
+}
+
+# The query entrypoint
+type Query {
+  # The current user
+  viewer(
+    # The language of the viewer
+    lang: String = "EN"
+  ): Viewer
+}
+
+# A Pokemon species
+type Species {
+  # The id of the Pokemon species
+  id: ID
+}
+
+# A type of a Pokemon
+type Type {
+  # The ID of a type
+  id: String
+
+  # The name of a type
+  name: String
+
+  # All the pokemon of the specified type
+  pokemon: [Pokemon]
+}
+
+# Viewer is the current user
+type Viewer {
+  # A Pokemon
+  pokemon(
+    # The ID of the Pokemon
+    id: ID
+
+    # The name of the Pokemon
+    name: String
+  ): Pokemon
+
+  # A Pokemon Type
+  type(
+    # The ID of the Pokemon Type
+    id: ID
+
+    # The name of the Pokemon Type
+    name: String
+  ): Type
+
+  # An Elemental Stone
+  stone: ElementalStone
 }
