@@ -2,7 +2,17 @@
   Mock Data Fetching Handlers
 */
 
-var data = require('../data').data
+import { data } from '../data'
+
+/*
+ * Naming util
+ */
+
+const EN = 9
+export const getName = (key, id, lang) => (
+  data.langs[key][lang] ? data.langs[key][lang][id] : data.langs[key][EN][id]
+)
+
 
 /*
  * Pokemon
@@ -59,4 +69,11 @@ export const getPokemonEvolutions = ({ id }) => (
  * Items
  */
 
+// Get a single item by id
 export const getItem = ({ id }) => data.sets.items[id]
+
+// Get a single item by name
+export const getItemByName = ({ name }) => {
+  const identifier = name.toLowerCase().replace(' ', '-')
+  return data.tables.items.find(p => p.identifier === identifier)
+}

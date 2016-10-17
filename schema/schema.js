@@ -12,6 +12,7 @@ import {
 } from 'graphql'
 
 import {
+  getName,
   getPokemon,
   getPokemonByName,
   getPokemonTypes,
@@ -19,6 +20,7 @@ import {
   getPokemonEvolutions,
   getType,
   getItem,
+  getItemByName,
 } from '../handlers'
 
 
@@ -31,9 +33,28 @@ const idToName = id => id
   .replace(/\w\S*/g, txt => (txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()))
 
 
+/*
+ * Language Enum
+ */
+
+const Language = new GraphQLEnumType({
+  name: 'Language',
+  values: {
+    JA: { value: 1 },
+    ROMAJI: { value: 2 },
+    KO: { value: 3 },
+    ZH: { value: 4 },
+    FR: { value: 5 },
+    DE: { value: 6 },
+    ES: { value: 7 },
+    IT: { value: 8 },
+    EN: { value: 9 },
+  },
+})
+
 
 /*
- * Type Enum
+ * Type Type
  */
 
 const Type = new GraphQLObjectType({
@@ -47,7 +68,7 @@ const Type = new GraphQLObjectType({
     name: {
       type: GraphQLString,
       description: 'The name of a type',
-      resolve: type => idToName(type.identifier),
+      resolve: ({ id }, _, { params: { lang } }) => getName('types', id, lang).name,
     },
     pokemon: {
       type: new GraphQLList(Pokemon),
@@ -189,7 +210,7 @@ const Item = new GraphQLObjectType({
     name: {
       type: GraphQLString,
       description: 'The name of the item',
-      resolve: item => idToName(item.identifier),
+      resolve: ({ id }, _, { params: { lang } }) => getName('items', id, lang).name,
     },
   }),
 })
@@ -223,14 +244,19 @@ const Pokemon = new GraphQLObjectType({
       type: GraphQLID,
       description: 'The id of the Pokemon',
     },
+    // species: {
+    //   type: Species,
+    //   description: 'The species of the Pokemon',
+    // },
     species: {
-      type: Species,
+      type: GraphQLString,
       description: 'The species of the Pokemon',
+      resolve: ({ id }, _, { params: { lang } }) => getName('species', id, lang).genus,
     },
     name: {
       type: GraphQLString,
       description: 'The name of the Pokemon',
-      resolve: pokemon => idToName(pokemon.identifier),
+      resolve: ({ id }, _, { params: { lang } }) => getName('species', id, lang).name,
     },
     gender: {
       type: Gender,
@@ -318,7 +344,7 @@ const Evolution = new GraphQLObjectType({
     item: {
       type: Item,
       description: 'The required item',
-      resolve: ({ trigger_item_id: id }) => getItem({ id }),
+      resolve: ({ trigger_item_id: id }, _, { params: { lang } }) => getName('items', id, lang).name,
     },
     level: {
       type: GraphQLInt,
@@ -374,9 +400,22 @@ const Viewer = new GraphQLObjectType({
       },
       resolve: (root, params) => getType(params),
     },
-    stone: {
-      type: Stone,
-      description: 'An Elemental Stone',
+    item: {
+      type: Item,
+      description: 'An item',
+      args: {
+        id: {
+          type: GraphQLID,
+          description: 'The ID of the Item',
+        },
+        name: {
+          type: GraphQLString,
+          description: 'The name of the Item',
+        },
+      },
+      resolve: (root, { id, name }) => (
+        name ? getItemByName({ name }) : getItem({ id })
+      ),
     },
   }),
 })
@@ -396,7 +435,7 @@ const Query = new GraphQLObjectType({
       description: 'The current user',
       args: {
         lang: {
-          type: GraphQLString,
+          type: Language,
           description: 'The language of the viewer',
           defaultValue: 'EN',
         },
