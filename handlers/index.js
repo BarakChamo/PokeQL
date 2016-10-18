@@ -4,6 +4,8 @@
 
 import { data } from '../data'
 
+const URL_BASE = 'http://pokeql.win'
+
 /*
  * Naming util
  */
@@ -52,7 +54,7 @@ export const getPokemonByType = ({ type }) => (
 
 
 // Get sprite
-export const getPokemonSprite = ({ id }) => `/assets/pokemon/${id}.gif`
+export const getPokemonSprite = ({ id }) => `${URL_BASE}/assets/pokemon/${ ('00' + id).substr(-3) }.gif`
 
 
 /*
