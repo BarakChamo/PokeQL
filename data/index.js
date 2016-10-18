@@ -11,10 +11,6 @@ const data = { tables: {}, sets: {}, langs: {} }
 
 const promise = Promise.all([
   /* Load Lists */
-  parseList('node_modules/pokeapi/data/v2/csv/pokemon.csv')
-    .then((pokemon) => { data.tables.pokemon = pokemon })
-    .then(log('Pokemon List loaded...')),
-
   parseList('node_modules/pokeapi/data/v2/csv/pokemon_species.csv')
   .then((species) => { data.tables.species = species })
   .then(log('Pokemon Species List loaded...')),
@@ -28,9 +24,13 @@ const promise = Promise.all([
   .then(log('Items List loaded...')),
 
   /* Load Objects */
+  parseObject('node_modules/pokeapi/data/v2/csv/pokemon.csv')
+    .then((pokemon) => { data.sets.pokemon = pokemon })
+    .then(log('Pokemon loaded...')),
+
   parseObject('node_modules/pokeapi/data/v2/csv/pokemon_species.csv')
     .then((species) => { data.sets.species = species })
-    .then(log('Pokemon set loaded...')),
+    .then(log('Pokemon Species loaded...')),
 
   parseObject('node_modules/pokeapi/data/v2/csv/pokemon_evolution.csv', 1)
     .then((evolution) => { data.sets.evolution = evolution })
@@ -64,6 +64,10 @@ const promise = Promise.all([
   parseGroupedObject('node_modules/pokeapi/data/v2/csv/type_names.csv')
     .then((types) => { data.langs.types = types })
     .then(log('Type Names loaded...')),
+
+  parseGroupedObject('node_modules/pokeapi/data/v2/csv/pokemon_color_names.csv')
+    .then((colors) => { data.langs.colors = colors })
+    .then(log('Color Names loaded...')),
 ])
 
 // When done loading expose the data

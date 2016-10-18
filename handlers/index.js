@@ -10,7 +10,9 @@ import { data } from '../data'
 
 const EN = 9
 export const getName = (key, id, lang) => (
-  data.langs[key][lang] ? data.langs[key][lang][id] : data.langs[key][EN][id]
+  (data.langs[key][lang] && data.langs[key][lang][id]) ?
+    data.langs[key][lang][id] :
+    data.langs[key][EN][id]
 )
 
 
@@ -18,13 +20,15 @@ export const getName = (key, id, lang) => (
  * Pokemon
  */
 
+const extendSpecies = species => Object.assign({}, data.sets.pokemon[species.id], species)
+
 // Get single Pokemon by id
-export const getPokemon = ({ id }) => data.sets.species[id]
+export const getPokemon = ({ id }) => extendSpecies(data.sets.species[id])
 
 // Get a single Pokemon by name
 export const getPokemonByName = ({ name }) => {
   const identifier = name.toLowerCase().replace(' ', '-')
-  return data.tables.species.find(p => p.identifier === identifier)
+  return extendSpecies(data.tables.species.find(p => p.identifier === identifier))
 }
 
 // Get single Pokemon types
@@ -45,6 +49,10 @@ export const getPokemonByType = ({ type }) => (
     .filter(pokemonType => pokemonType.type_id === type)
     .map(pokemonType => data.sets.species[pokemonType.pokemon_id])
 )
+
+
+// Get sprite
+export const getPokemonSprite = ({ id }) => `/assets/pokemon/${id}.gif`
 
 
 /*

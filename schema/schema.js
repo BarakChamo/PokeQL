@@ -18,6 +18,7 @@ import {
   getPokemonTypes,
   getPokemonByType,
   getPokemonEvolutions,
+  getPokemonSprite,
   getType,
   getItem,
   getItemByName,
@@ -258,9 +259,10 @@ const Pokemon = new GraphQLObjectType({
       description: 'The name of the Pokemon',
       resolve: ({ id }, _, { params: { lang } }) => getName('species', id, lang).name,
     },
-    gender: {
-      type: Gender,
-      description: 'The required gender',
+    sprite: {
+      type: GraphQLString,
+      description: 'The sprite image url of the Pokemon',
+      resolve: pokemon => getPokemonSprite(pokemon),
     },
     mega: {
       type: GraphQLBoolean,
@@ -281,11 +283,13 @@ const Pokemon = new GraphQLObjectType({
     },
     abilities: {
       type: new GraphQLList(Move),
-      description: 'The moves of the Pokemon',
+      description: 'The abilities of the Pokemon',
+      resolve: undefined,
     },
     moves: {
       type: new GraphQLList(Ability),
-      description: 'The abilities of the Pokemon',
+      description: 'The moves of the Pokemon',
+      resolve: undefined,
     },
     height: {
       type: GraphQLFloat,
@@ -294,6 +298,11 @@ const Pokemon = new GraphQLObjectType({
     weight: {
       type: GraphQLFloat,
       description: 'The weight of the Pokemon',
+    },
+    color: {
+      type: GraphQLString,
+      description: 'The color of the pokemon',
+      resolve: ({ color_id: id }, _, { params: { lang } }) => getName('colors', id, lang).name,
     },
     health: {
       type: GraphQLFloat,
