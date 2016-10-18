@@ -370,12 +370,12 @@ const Evolution = new GraphQLObjectType({
 
 
 /*
- * Viewer Type
+ * Trainer Type
  */
 
-const Viewer = new GraphQLObjectType({
-  name: 'Viewer',
-  description: 'Viewer is the current user',
+const Trainer = new GraphQLObjectType({
+  name: 'Trainer',
+  description: 'Trainer is the current user',
   fields: () => ({
     pokemon: {
       type: Pokemon,
@@ -439,13 +439,13 @@ const Query = new GraphQLObjectType({
   name: 'Query',
   description: 'The query entrypoint',
   fields: () => ({
-    viewer: {
-      type: Viewer,
+    trainer: {
+      type: Trainer,
       description: 'The current user',
       args: {
         lang: {
           type: Language,
-          description: 'The language of the viewer',
+          description: 'The language of the trainer',
           defaultValue: 'EN',
         },
       },
