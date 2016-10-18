@@ -49196,9 +49196,7 @@
 
 	var promise = Promise.all([
 	/* Load Lists */
-	(0, _parse.parseList)('node_modules/pokeapi/data/v2/csv/pokemon.csv').then(function (pokemon) {
-	  data.tables.pokemon = pokemon;
-	}).then(log('Pokemon List loaded...')), (0, _parse.parseList)('node_modules/pokeapi/data/v2/csv/pokemon_species.csv').then(function (species) {
+	(0, _parse.parseList)('node_modules/pokeapi/data/v2/csv/pokemon_species.csv').then(function (species) {
 	  data.tables.species = species;
 	}).then(log('Pokemon Species List loaded...')), (0, _parse.parseList)('node_modules/pokeapi/data/v2/csv/pokemon_types.csv').then(function (pokemonTypes) {
 	  data.tables.pokemonTypes = pokemonTypes;
@@ -49207,9 +49205,11 @@
 	}).then(log('Items List loaded...')),
 
 	/* Load Objects */
-	(0, _parse.parseObject)('node_modules/pokeapi/data/v2/csv/pokemon_species.csv').then(function (species) {
+	(0, _parse.parseObject)('node_modules/pokeapi/data/v2/csv/pokemon.csv').then(function (pokemon) {
+	  data.sets.pokemon = pokemon;
+	}).then(log('Pokemon loaded...')), (0, _parse.parseObject)('node_modules/pokeapi/data/v2/csv/pokemon_species.csv').then(function (species) {
 	  data.sets.species = species;
-	}).then(log('Pokemon set loaded...')), (0, _parse.parseObject)('node_modules/pokeapi/data/v2/csv/pokemon_evolution.csv', 1).then(function (evolution) {
+	}).then(log('Pokemon Species loaded...')), (0, _parse.parseObject)('node_modules/pokeapi/data/v2/csv/pokemon_evolution.csv', 1).then(function (evolution) {
 	  data.sets.evolution = evolution;
 	}).then(log('Pokemon Evolution loaded...')), (0, _parse.parseObject)('node_modules/pokeapi/data/v2/csv/types.csv').then(function (types) {
 	  data.sets.types = types;
@@ -49228,7 +49228,9 @@
 	  data.langs.abilities = abilities;
 	}).then(log('Ability Names loaded...')), (0, _parse.parseGroupedObject)('node_modules/pokeapi/data/v2/csv/type_names.csv').then(function (types) {
 	  data.langs.types = types;
-	}).then(log('Type Names loaded...'))])
+	}).then(log('Type Names loaded...')), (0, _parse.parseGroupedObject)('node_modules/pokeapi/data/v2/csv/pokemon_color_names.csv').then(function (colors) {
+	  data.langs.colors = colors;
+	}).then(log('Color Names loaded...'))])
 
 	// When done loading expose the data
 	.then(function () {
@@ -49794,9 +49796,12 @@
 	          return (0, _handlers.getName)('species', id, lang).name;
 	        }
 	      },
-	      gender: {
-	        type: Gender,
-	        description: 'The required gender'
+	      sprite: {
+	        type: _graphql.GraphQLString,
+	        description: 'The sprite image url of the Pokemon',
+	        resolve: function resolve(pokemon) {
+	          return (0, _handlers.getPokemonSprite)(pokemon);
+	        }
 	      },
 	      mega: {
 	        type: _graphql.GraphQLBoolean,
@@ -49821,11 +49826,13 @@
 	      },
 	      abilities: {
 	        type: new _graphql.GraphQLList(Move),
-	        description: 'The moves of the Pokemon'
+	        description: 'The abilities of the Pokemon',
+	        resolve: undefined
 	      },
 	      moves: {
 	        type: new _graphql.GraphQLList(Ability),
-	        description: 'The abilities of the Pokemon'
+	        description: 'The moves of the Pokemon',
+	        resolve: undefined
 	      },
 	      height: {
 	        type: _graphql.GraphQLFloat,
@@ -49834,6 +49841,15 @@
 	      weight: {
 	        type: _graphql.GraphQLFloat,
 	        description: 'The weight of the Pokemon'
+	      },
+	      color: {
+	        type: _graphql.GraphQLString,
+	        description: 'The color of the pokemon',
+	        resolve: function resolve(_ref10, _, _ref11) {
+	          var id = _ref10.color_id;
+	          var lang = _ref11.params.lang;
+	          return (0, _handlers.getName)('colors', id, lang).name;
+	        }
 	      },
 	      health: {
 	        type: _graphql.GraphQLFloat,
@@ -49875,8 +49891,8 @@
 	      pokemon: {
 	        type: Pokemon,
 	        description: 'The Pokemon evolving to',
-	        resolve: function resolve(_ref10) {
-	          var id = _ref10.evolved_species_id;
+	        resolve: function resolve(_ref12) {
+	          var id = _ref12.evolved_species_id;
 	          return (0, _handlers.getPokemon)({ id: id });
 	        }
 	      },
@@ -49890,9 +49906,9 @@
 	      item: {
 	        type: Item,
 	        description: 'The required item',
-	        resolve: function resolve(_ref11, _, _ref12) {
-	          var id = _ref11.trigger_item_id;
-	          var lang = _ref12.params.lang;
+	        resolve: function resolve(_ref13, _, _ref14) {
+	          var id = _ref13.trigger_item_id;
+	          var lang = _ref14.params.lang;
 	          return (0, _handlers.getName)('items', id, lang).name;
 	        }
 	      },
@@ -49915,12 +49931,12 @@
 	});
 
 	/*
-	 * Viewer Type
+	 * Trainer Type
 	 */
 
-	var Viewer = new _graphql.GraphQLObjectType({
-	  name: 'Viewer',
-	  description: 'Viewer is the current user',
+	var Trainer = new _graphql.GraphQLObjectType({
+	  name: 'Trainer',
+	  description: 'Trainer is the current user',
 	  fields: function fields() {
 	    return {
 	      pokemon: {
@@ -49936,9 +49952,9 @@
 	            description: 'The name of the Pokemon'
 	          }
 	        },
-	        resolve: function resolve(root, _ref13) {
-	          var id = _ref13.id;
-	          var name = _ref13.name;
+	        resolve: function resolve(root, _ref15) {
+	          var id = _ref15.id;
+	          var name = _ref15.name;
 	          return name ? (0, _handlers.getPokemonByName)({ name: name }) : (0, _handlers.getPokemon)({ id: id });
 	        }
 	      },
@@ -49972,9 +49988,9 @@
 	            description: 'The name of the Item'
 	          }
 	        },
-	        resolve: function resolve(root, _ref14) {
-	          var id = _ref14.id;
-	          var name = _ref14.name;
+	        resolve: function resolve(root, _ref16) {
+	          var id = _ref16.id;
+	          var name = _ref16.name;
 	          return name ? (0, _handlers.getItemByName)({ name: name }) : (0, _handlers.getItem)({ id: id });
 	        }
 	      }
@@ -49991,13 +50007,13 @@
 	  description: 'The query entrypoint',
 	  fields: function fields() {
 	    return {
-	      viewer: {
-	        type: Viewer,
+	      trainer: {
+	        type: Trainer,
 	        description: 'The current user',
 	        args: {
 	          lang: {
 	            type: Language,
-	            description: 'The language of the viewer',
+	            description: 'The language of the trainer',
 	            defaultValue: 'EN'
 	          }
 	        },
@@ -50094,30 +50110,37 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.getItemByName = exports.getItem = exports.getPokemonEvolutions = exports.getType = exports.getPokemonByType = exports.getPokemonTypes = exports.getPokemonByName = exports.getPokemon = exports.getName = undefined;
+	exports.getItemByName = exports.getItem = exports.getPokemonEvolutions = exports.getType = exports.getPokemonSprite = exports.getPokemonByType = exports.getPokemonTypes = exports.getPokemonByName = exports.getPokemon = exports.getName = undefined;
 
 	var _data = __webpack_require__(188);
+
+	var URL_BASE = 'http://pokeql.win';
 
 	/*
 	 * Naming util
 	 */
 
-	var EN = 9; /*
-	              Mock Data Fetching Handlers
-	            */
+	/*
+	  Mock Data Fetching Handlers
+	*/
 
+	var EN = 9;
 	var getName = exports.getName = function getName(key, id, lang) {
-	  return _data.data.langs[key][lang] ? _data.data.langs[key][lang][id] : _data.data.langs[key][EN][id];
+	  return _data.data.langs[key][lang] && _data.data.langs[key][lang][id] ? _data.data.langs[key][lang][id] : _data.data.langs[key][EN][id];
 	};
 
 	/*
 	 * Pokemon
 	 */
 
+	var extendSpecies = function extendSpecies(species) {
+	  return Object.assign({}, _data.data.sets.pokemon[species.id], species);
+	};
+
 	// Get single Pokemon by id
 	var getPokemon = exports.getPokemon = function getPokemon(_ref) {
 	  var id = _ref.id;
-	  return _data.data.sets.species[id];
+	  return extendSpecies(_data.data.sets.species[id]);
 	};
 
 	// Get a single Pokemon by name
@@ -50125,9 +50148,9 @@
 	  var name = _ref2.name;
 
 	  var identifier = name.toLowerCase().replace(' ', '-');
-	  return _data.data.tables.species.find(function (p) {
+	  return extendSpecies(_data.data.tables.species.find(function (p) {
 	    return p.identifier === identifier;
-	  });
+	  }));
 	};
 
 	// Get single Pokemon types
@@ -50156,12 +50179,18 @@
 	  });
 	};
 
+	// Get sprite
+	var getPokemonSprite = exports.getPokemonSprite = function getPokemonSprite(_ref5) {
+	  var id = _ref5.id;
+	  return URL_BASE + '/assets/pokemon/' + ('00' + id).substr(-3) + '.gif';
+	};
+
 	/*
 	 * Types
 	 */
 
-	var getType = exports.getType = function getType(_ref5) {
-	  var id = _ref5.id;
+	var getType = exports.getType = function getType(_ref6) {
+	  var id = _ref6.id;
 	  return _data.data.sets.types[id];
 	};
 
@@ -50169,8 +50198,8 @@
 	 * Evolutions
 	 */
 
-	var getPokemonEvolutions = exports.getPokemonEvolutions = function getPokemonEvolutions(_ref6) {
-	  var id = _ref6.id;
+	var getPokemonEvolutions = exports.getPokemonEvolutions = function getPokemonEvolutions(_ref7) {
+	  var id = _ref7.id;
 	  return _data.data.tables.species.filter(function (s) {
 	    return s.evolves_from_species_id === id;
 	  }).map(function (s) {
@@ -50183,14 +50212,14 @@
 	 */
 
 	// Get a single item by id
-	var getItem = exports.getItem = function getItem(_ref7) {
-	  var id = _ref7.id;
+	var getItem = exports.getItem = function getItem(_ref8) {
+	  var id = _ref8.id;
 	  return _data.data.sets.items[id];
 	};
 
 	// Get a single item by name
-	var getItemByName = exports.getItemByName = function getItemByName(_ref8) {
-	  var name = _ref8.name;
+	var getItemByName = exports.getItemByName = function getItemByName(_ref9) {
+	  var name = _ref9.name;
 
 	  var identifier = name.toLowerCase().replace(' ', '-');
 	  return _data.data.tables.items.find(function (p) {

@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const Schema = require('../schema/schema').default
+const Schema = require('../graph/schema/schema').default
 const graphql = require('graphql').graphql
 const introspectionQuery = require('graphql/utilities').introspectionQuery
 const printSchema = require('graphql/utilities').printSchema
@@ -16,7 +16,7 @@ graphql(Schema, introspectionQuery).then(
       )
     } else {
       fs.writeFileSync(
-        path.join(__dirname, '../schema/schema.json'),
+        path.join(__dirname, '../graph/schema/schema.json'),
         JSON.stringify(result, null, 2)
       )
     }
@@ -25,6 +25,6 @@ graphql(Schema, introspectionQuery).then(
 
 // Save user readable type system shorthand of schema
 fs.writeFileSync(
-  path.join(__dirname, '../schema/schema.graphql'),
+  path.join(__dirname, '../graph/schema/schema.graphql'),
   printSchema(Schema)
 )

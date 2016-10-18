@@ -1,5 +1,5 @@
-module.exports = {
-  entry: './index.js',
+module.exports = [{
+  entry: './graph/index.js',
   target: 'node',
   output: {
     path: './bin',
@@ -16,4 +16,4 @@ module.exports = {
       loader: 'json-loader',
     }],
   },
-}
+}]
