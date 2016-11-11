@@ -7,3 +7,7 @@
 ## PokéQL
 ###### A GraphQL Pokémon API
 
+[Explore the GraphQL schema with Graph*i*QL](graph.pokeql.win)
+
+
+###### Documentation and examples coming soon
