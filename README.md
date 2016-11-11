@@ -4,5 +4,6 @@
   <img width="200" src="https://cloud.githubusercontent.com/assets/2883345/20200964/ebfe6712-a7f7-11e6-9259-43e5a88cd592.png" alt="PokeQL Logo"/>
 </p>
 
-# PokeQL
-A GraphQL implementation of the Pokémon API
+## PokéQL
+###### A GraphQL Pokémon API
+
