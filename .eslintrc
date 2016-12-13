@@ -1,6 +1,11 @@
 {
   "extends": "airbnb",
+  "env": {
+    "browser": true,
+    "node": true
+  },
   "rules": {
+    "import/no-extraneous-dependencies": 0,
     "import/extensions": 0,
     "semi": 0,
     "no-use-before-define": 0

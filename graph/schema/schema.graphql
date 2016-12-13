@@ -4,17 +4,6 @@ type Ability {
   name: String
 }
 
-enum ElementalStone {
-  FIRE
-  WATER
-  THUNDER
-  LEAF
-  MOON
-  SUN
-  SHINY
-  DUSK
-}
-
 # An Evolution
 type Evolution {
   # The Pokemon evolving to
@@ -46,11 +35,6 @@ type Evolve {
   pokemon: Pokemon
 }
 
-enum Gender {
-  MALE
-  FEMALE
-}
-
 # An Item
 type Item {
   # The ID of the item
@@ -61,6 +45,18 @@ type Item {
 
   # The name of the item
   name: String
+}
+
+enum Language {
+  JA
+  ROMAJI
+  KO
+  ZH
+  FR
+  DE
+  ES
+  IT
+  EN
 }
 
 # A Move
@@ -102,13 +98,13 @@ type Pokemon {
   id: ID
 
   # The species of the Pokemon
-  species: Species
+  species: String
 
   # The name of the Pokemon
   name: String
 
-  # The required gender
-  gender: Gender
+  # The sprite image url of the Pokemon
+  sprite: String
 
   # Is Mega Pokemon
   mega: Boolean
@@ -119,10 +115,10 @@ type Pokemon {
   # The potential evolutions of the Pokemon
   evolution: [Evolution]
 
-  # The moves of the Pokemon
+  # The abilities of the Pokemon
   abilities: [Move]
 
-  # The abilities of the Pokemon
+  # The moves of the Pokemon
   moves: [Ability]
 
   # The height of the Pokemon
@@ -130,6 +126,9 @@ type Pokemon {
 
   # The weight of the Pokemon
   weight: Float
+
+  # The color of the pokemon
+  color: String
 
   # The HP of the Pokemon
   health: Float
@@ -153,32 +152,14 @@ type Pokemon {
 # The query entrypoint
 type Query {
   # The current user
-  viewer(
-    # The language of the viewer
-    lang: String = "EN"
-  ): Viewer
+  trainer(
+    # The language of the trainer
+    lang: Language = null
+  ): Trainer
 }
 
-# A Pokemon species
-type Species {
-  # The id of the Pokemon species
-  id: ID
-}
-
-# A type of a Pokemon
-type Type {
-  # The ID of a type
-  id: String
-
-  # The name of a type
-  name: String
-
-  # All the pokemon of the specified type
-  pokemon: [Pokemon]
-}
-
-# Viewer is the current user
-type Viewer {
+# Trainer is the current user
+type Trainer {
   # A Pokemon
   pokemon(
     # The ID of the Pokemon
@@ -197,6 +178,24 @@ type Viewer {
     name: String
   ): Type
 
-  # An Elemental Stone
-  stone: ElementalStone
+  # An item
+  item(
+    # The ID of the Item
+    id: ID
+
+    # The name of the Item
+    name: String
+  ): Item
+}
+
+# A type of a Pokemon
+type Type {
+  # The ID of a type
+  id: String
+
+  # The name of a type
+  name: String
+
+  # All the pokemon of the specified type
+  pokemon: [Pokemon]
 }

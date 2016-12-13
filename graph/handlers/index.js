@@ -76,6 +76,28 @@ export const getPokemonEvolutions = ({ id }) => (
 
 
 /*
+ * Moves
+ */
+
+// export const getPokemonMoves = ({ id }) => (
+//   data.tables.species
+//     .filter(s => s.evolves_from_species_id === id)
+//     .map(s => data.sets.evolution[s.id])
+// )
+
+
+/*
+ * Abilities
+ */
+
+export const getPokemonAbilities = ({ id }) => (
+  data.tables.pokemonAbilities
+    .filter(a => a.pokemon_id === id)
+    .map(a => data.sets.abilities[a.ability_id])
+)
+
+
+/*
  * Items
  */
 

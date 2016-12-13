@@ -1,4 +1,4 @@
-module.exports = [{
+module.exports = {
   entry: './graph/index.js',
   target: 'node',
   output: {
@@ -16,4 +16,4 @@ module.exports = [{
       loader: 'json-loader',
     }],
   },
-}]
+}

@@ -48,16 +48,22 @@
 
 	var express = __webpack_require__(1);
 	var graphQLHTTP = __webpack_require__(83);
+	var cors = __webpack_require__(188);
 
-	var data = __webpack_require__(188);
+	var data = __webpack_require__(189);
 	var PORT = process.env.PORT || 8000;
 	var server = void 0;
 
 	function startGraphQLServer(callback) {
 	  // Expose a GraphQL endpoint
-	  var Schema = __webpack_require__(191).default; // eslint-disable-line
+	  var Schema = __webpack_require__(192).default; // eslint-disable-line
 
 	  var app = express();
+
+	  app.use(cors());
+
+	  app.use('/assets', express.static('assets'));
+	  app.use('/dex', express.static('bin'));
 
 	  app.use('/', graphQLHTTP({
 	    graphiql: true,
@@ -49177,9 +49183,258 @@
 /* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
+	(function () {
+
+	  'use strict';
+
+	  var vary = __webpack_require__(81);
+
+	  var defaults = {
+	      origin: '*',
+	      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+	      preflightContinue: false,
+	      optionsSuccessStatus: 204
+	    };
+
+	  function isString(s) {
+	    return typeof s === 'string' || s instanceof String;
+	  }
+
+	  function isOriginAllowed(origin, allowedOrigin) {
+	    if (Array.isArray(allowedOrigin)) {
+	      for (var i = 0; i < allowedOrigin.length; ++i) {
+	        if (isOriginAllowed(origin, allowedOrigin[i])) {
+	          return true;
+	        }
+	      }
+	      return false;
+	    } else if (isString(allowedOrigin)) {
+	      return origin === allowedOrigin;
+	    } else if (allowedOrigin instanceof RegExp) {
+	      return allowedOrigin.test(origin);
+	    } else {
+	      return !!allowedOrigin;
+	    }
+	  }
+
+	  function configureOrigin(options, req) {
+	    var requestOrigin = req.headers.origin,
+	      headers = [],
+	      isAllowed;
+
+	    if (!options.origin || options.origin === '*') {
+	      // allow any origin
+	      headers.push([{
+	        key: 'Access-Control-Allow-Origin',
+	        value: '*'
+	      }]);
+	    } else if (isString(options.origin)) {
+	      // fixed origin
+	      headers.push([{
+	        key: 'Access-Control-Allow-Origin',
+	        value: options.origin
+	      }]);
+	      headers.push([{
+	        key: 'Vary',
+	        value: 'Origin'
+	      }]);
+	    } else {
+	      isAllowed = isOriginAllowed(requestOrigin, options.origin);
+	      // reflect origin
+	      headers.push([{
+	        key: 'Access-Control-Allow-Origin',
+	        value: isAllowed ? requestOrigin : false
+	      }]);
+	      if (isAllowed) {
+	        headers.push([{
+	          key: 'Vary',
+	          value: 'Origin'
+	        }]);
+	      }
+	    }
+
+	    return headers;
+	  }
+
+	  function configureMethods(options) {
+	    var methods = options.methods || defaults.methods;
+	    if (methods.join) {
+	      methods = options.methods.join(','); // .methods is an array, so turn it into a string
+	    }
+	    return {
+	      key: 'Access-Control-Allow-Methods',
+	      value: methods
+	    };
+	  }
+
+	  function configureCredentials(options) {
+	    if (options.credentials === true) {
+	      return {
+	        key: 'Access-Control-Allow-Credentials',
+	        value: 'true'
+	      };
+	    }
+	    return null;
+	  }
+
+	  function configureAllowedHeaders(options, req) {
+	    var headers = options.allowedHeaders || options.headers;
+	    if (!headers) {
+	      headers = req.headers['access-control-request-headers']; // .headers wasn't specified, so reflect the request headers
+	    } else if (headers.join) {
+	      headers = headers.join(','); // .headers is an array, so turn it into a string
+	    }
+	    if (headers && headers.length) {
+	      return {
+	        key: 'Access-Control-Allow-Headers',
+	        value: headers
+	      };
+	    }
+	    return null;
+	  }
+
+	  function configureExposedHeaders(options) {
+	    var headers = options.exposedHeaders;
+	    if (!headers) {
+	      return null;
+	    } else if (headers.join) {
+	      headers = headers.join(','); // .headers is an array, so turn it into a string
+	    }
+	    if (headers && headers.length) {
+	      return {
+	        key: 'Access-Control-Expose-Headers',
+	        value: headers
+	      };
+	    }
+	    return null;
+	  }
+
+	  function configureMaxAge(options) {
+	    var maxAge = options.maxAge && options.maxAge.toString();
+	    if (maxAge && maxAge.length) {
+	      return {
+	        key: 'Access-Control-Max-Age',
+	        value: maxAge
+	      };
+	    }
+	    return null;
+	  }
+
+	  function applyHeaders(headers, res) {
+	    for (var i = 0, n = headers.length; i < n; i++) {
+	      var header = headers[i];
+	      if (header) {
+	        if (Array.isArray(header)) {
+	          applyHeaders(header, res);
+	        } else if (header.key === 'Vary' && header.value) {
+	          vary(res, header.value);
+	        } else if (header.value) {
+	          res.setHeader(header.key, header.value);
+	        }
+	      }
+	    }
+	  }
+
+	  function cors(options, req, res, next) {
+	    var headers = [],
+	      method = req.method && req.method.toUpperCase && req.method.toUpperCase();
+
+	    if (method === 'OPTIONS') {
+	      // preflight
+	      headers.push(configureOrigin(options, req));
+	      headers.push(configureCredentials(options, req));
+	      headers.push(configureMethods(options, req));
+	      headers.push(configureAllowedHeaders(options, req));
+	      headers.push(configureMaxAge(options, req));
+	      headers.push(configureExposedHeaders(options, req));
+	      applyHeaders(headers, res);
+
+	      if (options.preflightContinue ) {
+	        next();
+	      } else {
+	        res.statusCode = options.optionsSuccessStatus || defaults.optionsSuccessStatus;
+	        res.end();
+	      }
+	    } else {
+	      // actual response
+	      headers.push(configureOrigin(options, req));
+	      headers.push(configureCredentials(options, req));
+	      headers.push(configureExposedHeaders(options, req));
+	      applyHeaders(headers, res);
+	      next();
+	    }
+	  }
+
+	  function middlewareWrapper(o) {
+	    // if no options were passed in, use the defaults
+	    if (!o || o === true) {
+	      o = {};
+	    }
+	    if (o.origin === undefined) {
+	      o.origin = defaults.origin;
+	    }
+	    if (o.methods === undefined) {
+	      o.methods = defaults.methods;
+	    }
+	    if (o.preflightContinue === undefined) {
+	      o.preflightContinue = defaults.preflightContinue;
+	    }
+
+	    // if options are static (either via defaults or custom options passed in), wrap in a function
+	    var optionsCallback = null;
+	    if (typeof o === 'function') {
+	      optionsCallback = o;
+	    } else {
+	      optionsCallback = function (req, cb) {
+	        cb(null, o);
+	      };
+	    }
+
+	    return function corsMiddleware(req, res, next) {
+	      optionsCallback(req, function (err, options) {
+	        if (err) {
+	          next(err);
+	        } else {
+	          var originCallback = null;
+	          if (options.origin && typeof options.origin === 'function') {
+	            originCallback = options.origin;
+	          } else if (options.origin) {
+	            originCallback = function (origin, cb) {
+	              cb(null, options.origin);
+	            };
+	          }
+
+	          if (originCallback) {
+	            originCallback(req.headers.origin, function (err2, origin) {
+	              if (err2 || !origin) {
+	                next(err2);
+	              } else {
+	                var corsOptions = Object.create(options);
+	                corsOptions.origin = origin;
+	                cors(corsOptions, req, res, next);
+	              }
+	            });
+	          } else {
+	            next();
+	          }
+	        }
+	      });
+	    };
+	  }
+
+	  // can pass either an options hash, an options delegate, or nothing
+	  module.exports = middlewareWrapper;
+
+	}());
+
+
+/***/ },
+/* 189 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
-	var _parse = __webpack_require__(189);
+	var _parse = __webpack_require__(190);
 
 	var log = function log(l) {
 	  return function () {
@@ -49200,7 +49455,11 @@
 	  data.tables.species = species;
 	}).then(log('Pokemon Species List loaded...')), (0, _parse.parseList)('node_modules/pokeapi/data/v2/csv/pokemon_types.csv').then(function (pokemonTypes) {
 	  data.tables.pokemonTypes = pokemonTypes;
-	}).then(log('Pokemon Types List loaded...')), (0, _parse.parseList)('node_modules/pokeapi/data/v2/csv/items.csv').then(function (items) {
+	}).then(log('Pokemon Types List loaded...')), (0, _parse.parseList)('node_modules/pokeapi/data/v2/csv/pokemon_moves.csv').then(function (pokemonMoves) {
+	  data.tables.pokemonMoves = pokemonMoves;
+	}).then(log('Pokemon Moves List loaded...')), (0, _parse.parseList)('node_modules/pokeapi/data/v2/csv/pokemon_abilities.csv').then(function (pokemonAbilities) {
+	  data.tables.pokemonAbilities = pokemonAbilities;
+	}).then(log('Pokemon Abilities List loaded...')), (0, _parse.parseList)('node_modules/pokeapi/data/v2/csv/items.csv').then(function (items) {
 	  data.tables.items = items;
 	}).then(log('Items List loaded...')),
 
@@ -49211,11 +49470,15 @@
 	  data.sets.species = species;
 	}).then(log('Pokemon Species loaded...')), (0, _parse.parseObject)('node_modules/pokeapi/data/v2/csv/pokemon_evolution.csv', 1).then(function (evolution) {
 	  data.sets.evolution = evolution;
+	}).then(log('Pokemon Evolution loaded...')), (0, _parse.parseObject)('node_modules/pokeapi/data/v2/csv/pokemon_evolution.csv', 1).then(function (evolution) {
+	  data.sets.evolution = evolution;
 	}).then(log('Pokemon Evolution loaded...')), (0, _parse.parseObject)('node_modules/pokeapi/data/v2/csv/types.csv').then(function (types) {
 	  data.sets.types = types;
 	}).then(log('Types loaded...')), (0, _parse.parseObject)('node_modules/pokeapi/data/v2/csv/abilities.csv').then(function (abilities) {
 	  data.sets.abilities = abilities;
-	}).then(log('Abilities loaded...')), (0, _parse.parseObject)('node_modules/pokeapi/data/v2/csv/items.csv').then(function (items) {
+	}).then(log('Abilities loaded...')), (0, _parse.parseObject)('node_modules/pokeapi/data/v2/csv/moves.csv').then(function (moves) {
+	  data.sets.moves = moves;
+	}).then(log('Moves loaded...')), (0, _parse.parseObject)('node_modules/pokeapi/data/v2/csv/items.csv').then(function (items) {
 	  data.sets.items = items;
 	}).then(log('Items loaded...')),
 
@@ -49226,7 +49489,9 @@
 	  data.langs.items = items;
 	}).then(log('Items Names loaded...')), (0, _parse.parseGroupedObject)('node_modules/pokeapi/data/v2/csv/ability_names.csv').then(function (abilities) {
 	  data.langs.abilities = abilities;
-	}).then(log('Ability Names loaded...')), (0, _parse.parseGroupedObject)('node_modules/pokeapi/data/v2/csv/type_names.csv').then(function (types) {
+	}).then(log('Ability Names loaded...')), (0, _parse.parseGroupedObject)('node_modules/pokeapi/data/v2/csv/move_names.csv').then(function (moves) {
+	  data.langs.moves = moves;
+	}).then(log('Move Names loaded...')), (0, _parse.parseGroupedObject)('node_modules/pokeapi/data/v2/csv/type_names.csv').then(function (types) {
 	  data.langs.types = types;
 	}).then(log('Type Names loaded...')), (0, _parse.parseGroupedObject)('node_modules/pokeapi/data/v2/csv/pokemon_color_names.csv').then(function (colors) {
 	  data.langs.colors = colors;
@@ -49241,7 +49506,7 @@
 	module.exports.data = data;
 
 /***/ },
-/* 189 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -49253,7 +49518,7 @@
 	exports.parseObject = parseObject;
 	exports.parseGroupedObject = parseGroupedObject;
 
-	var _lineByLine = __webpack_require__(190);
+	var _lineByLine = __webpack_require__(191);
 
 	var _lineByLine2 = _interopRequireDefault(_lineByLine);
 
@@ -49365,7 +49630,7 @@
 	}
 
 /***/ },
-/* 190 */
+/* 191 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -49527,7 +49792,7 @@
 
 
 /***/ },
-/* 191 */
+/* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -49538,17 +49803,16 @@
 
 	var _graphql = __webpack_require__(84);
 
-	var _handlers = __webpack_require__(192);
+	var _handlers = __webpack_require__(193);
 
 	/*
 	 * Utils
 	 */
 
-	var idToName = function idToName(id) {
-	  return id.replace('-', ' ').replace(/\w\S*/g, function (txt) {
-	    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-	  });
-	};
+	// const idToName = id => id
+	//   .replace('-', ' ')
+	//   .replace(/\w\S*/g, txt => (txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()))
+
 
 	/*
 	 * Language Enum
@@ -49634,13 +49898,14 @@
 	 * Move Category Enum
 	 */
 
-	var Gender = new _graphql.GraphQLEnumType({
-	  name: 'Gender',
-	  values: {
-	    MALE: { value: '0' },
-	    FEMALE: { value: '1' }
-	  }
-	});
+	// const Gender = new GraphQLEnumType({
+	//   name: 'Gender',
+	//   values: {
+	//     MALE: { value: '0' },
+	//     FEMALE: { value: '1' },
+	//   },
+	// })
+
 
 	/*
 	 * Elemental Stone Enum
@@ -49706,9 +49971,18 @@
 	  description: 'An Ability',
 	  fields: function fields() {
 	    return {
+	      id: {
+	        type: _graphql.GraphQLID,
+	        description: 'The ID of the ability'
+	      },
 	      name: {
 	        type: _graphql.GraphQLString,
-	        description: 'The name of the ability'
+	        description: 'The name of the ability',
+	        resolve: function resolve(_ref4, _, _ref5) {
+	          var id = _ref4.id;
+	          var lang = _ref5.params.lang;
+	          return (0, _handlers.getName)('abilities', id, lang).name;
+	        }
 	      }
 	    };
 	  }
@@ -49734,9 +50008,9 @@
 	      name: {
 	        type: _graphql.GraphQLString,
 	        description: 'The name of the item',
-	        resolve: function resolve(_ref4, _, _ref5) {
-	          var id = _ref4.id;
-	          var lang = _ref5.params.lang;
+	        resolve: function resolve(_ref6, _, _ref7) {
+	          var id = _ref6.id;
+	          var lang = _ref7.params.lang;
 	          return (0, _handlers.getName)('items', id, lang).name;
 	        }
 	      }
@@ -49748,18 +50022,17 @@
 	 * Species Type
 	 */
 
-	var Species = new _graphql.GraphQLObjectType({
-	  name: 'Species',
-	  description: 'A Pokemon species',
-	  fields: function fields() {
-	    return {
-	      id: {
-	        type: _graphql.GraphQLID,
-	        description: 'The id of the Pokemon species'
-	      }
-	    };
-	  }
-	});
+	// const Species = new GraphQLObjectType({
+	//   name: 'Species',
+	//   description: 'A Pokemon species',
+	//   fields: () => ({
+	//     id: {
+	//       type: GraphQLID,
+	//       description: 'The id of the Pokemon species',
+	//     },
+	//   }),
+	// })
+
 
 	/*
 	 * Pokemon Type
@@ -49781,18 +50054,18 @@
 	      species: {
 	        type: _graphql.GraphQLString,
 	        description: 'The species of the Pokemon',
-	        resolve: function resolve(_ref6, _, _ref7) {
-	          var id = _ref6.id;
-	          var lang = _ref7.params.lang;
+	        resolve: function resolve(_ref8, _, _ref9) {
+	          var id = _ref8.id;
+	          var lang = _ref9.params.lang;
 	          return (0, _handlers.getName)('species', id, lang).genus;
 	        }
 	      },
 	      name: {
 	        type: _graphql.GraphQLString,
 	        description: 'The name of the Pokemon',
-	        resolve: function resolve(_ref8, _, _ref9) {
-	          var id = _ref8.id;
-	          var lang = _ref9.params.lang;
+	        resolve: function resolve(_ref10, _, _ref11) {
+	          var id = _ref10.id;
+	          var lang = _ref11.params.lang;
 	          return (0, _handlers.getName)('species', id, lang).name;
 	        }
 	      },
@@ -49825,12 +50098,14 @@
 	        }
 	      },
 	      abilities: {
-	        type: new _graphql.GraphQLList(Move),
+	        type: new _graphql.GraphQLList(Ability),
 	        description: 'The abilities of the Pokemon',
-	        resolve: undefined
+	        resolve: function resolve(pokemon) {
+	          return console.log((0, _handlers.getPokemonAbilities)(pokemon)) || (0, _handlers.getPokemonAbilities)(pokemon);
+	        }
 	      },
 	      moves: {
-	        type: new _graphql.GraphQLList(Ability),
+	        type: new _graphql.GraphQLList(Move),
 	        description: 'The moves of the Pokemon',
 	        resolve: undefined
 	      },
@@ -49845,9 +50120,9 @@
 	      color: {
 	        type: _graphql.GraphQLString,
 	        description: 'The color of the pokemon',
-	        resolve: function resolve(_ref10, _, _ref11) {
-	          var id = _ref10.color_id;
-	          var lang = _ref11.params.lang;
+	        resolve: function resolve(_ref12, _, _ref13) {
+	          var id = _ref12.color_id;
+	          var lang = _ref13.params.lang;
 	          return (0, _handlers.getName)('colors', id, lang).name;
 	        }
 	      },
@@ -49891,8 +50166,8 @@
 	      pokemon: {
 	        type: Pokemon,
 	        description: 'The Pokemon evolving to',
-	        resolve: function resolve(_ref12) {
-	          var id = _ref12.evolved_species_id;
+	        resolve: function resolve(_ref14) {
+	          var id = _ref14.evolved_species_id;
 	          return (0, _handlers.getPokemon)({ id: id });
 	        }
 	      },
@@ -49906,9 +50181,9 @@
 	      item: {
 	        type: Item,
 	        description: 'The required item',
-	        resolve: function resolve(_ref13, _, _ref14) {
-	          var id = _ref13.trigger_item_id;
-	          var lang = _ref14.params.lang;
+	        resolve: function resolve(_ref15, _, _ref16) {
+	          var id = _ref15.trigger_item_id;
+	          var lang = _ref16.params.lang;
 	          return (0, _handlers.getName)('items', id, lang).name;
 	        }
 	      },
@@ -49952,9 +50227,9 @@
 	            description: 'The name of the Pokemon'
 	          }
 	        },
-	        resolve: function resolve(root, _ref15) {
-	          var id = _ref15.id;
-	          var name = _ref15.name;
+	        resolve: function resolve(root, _ref17) {
+	          var id = _ref17.id;
+	          var name = _ref17.name;
 	          return name ? (0, _handlers.getPokemonByName)({ name: name }) : (0, _handlers.getPokemon)({ id: id });
 	        }
 	      },
@@ -49988,9 +50263,9 @@
 	            description: 'The name of the Item'
 	          }
 	        },
-	        resolve: function resolve(root, _ref16) {
-	          var id = _ref16.id;
-	          var name = _ref16.name;
+	        resolve: function resolve(root, _ref18) {
+	          var id = _ref18.id;
+	          var name = _ref18.name;
 	          return name ? (0, _handlers.getItemByName)({ name: name }) : (0, _handlers.getItem)({ id: id });
 	        }
 	      }
@@ -50102,7 +50377,7 @@
 	exports.default = Schema;
 
 /***/ },
-/* 192 */
+/* 193 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -50110,9 +50385,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.getItemByName = exports.getItem = exports.getPokemonEvolutions = exports.getType = exports.getPokemonSprite = exports.getPokemonByType = exports.getPokemonTypes = exports.getPokemonByName = exports.getPokemon = exports.getName = undefined;
+	exports.getItemByName = exports.getItem = exports.getPokemonAbilities = exports.getPokemonEvolutions = exports.getType = exports.getPokemonSprite = exports.getPokemonByType = exports.getPokemonTypes = exports.getPokemonByName = exports.getPokemon = exports.getName = undefined;
 
-	var _data = __webpack_require__(188);
+	var _data = __webpack_require__(189);
 
 	var URL_BASE = 'http://pokeql.win';
 
@@ -50208,18 +50483,42 @@
 	};
 
 	/*
+	 * Moves
+	 */
+
+	// export const getPokemonMoves = ({ id }) => (
+	//   data.tables.species
+	//     .filter(s => s.evolves_from_species_id === id)
+	//     .map(s => data.sets.evolution[s.id])
+	// )
+
+
+	/*
+	 * Abilities
+	 */
+
+	var getPokemonAbilities = exports.getPokemonAbilities = function getPokemonAbilities(_ref8) {
+	  var id = _ref8.id;
+	  return _data.data.tables.pokemonAbilities.filter(function (a) {
+	    return a.pokemon_id === id;
+	  }).map(function (a) {
+	    return _data.data.sets.abilities[a.ability_id];
+	  });
+	};
+
+	/*
 	 * Items
 	 */
 
 	// Get a single item by id
-	var getItem = exports.getItem = function getItem(_ref8) {
-	  var id = _ref8.id;
+	var getItem = exports.getItem = function getItem(_ref9) {
+	  var id = _ref9.id;
 	  return _data.data.sets.items[id];
 	};
 
 	// Get a single item by name
-	var getItemByName = exports.getItemByName = function getItemByName(_ref9) {
-	  var name = _ref9.name;
+	var getItemByName = exports.getItemByName = function getItemByName(_ref10) {
+	  var name = _ref10.name;
 
 	  var identifier = name.toLowerCase().replace(' ', '-');
 	  return _data.data.tables.items.find(function (p) {

@@ -1,0 +1,190 @@
+html, body, #app {
+  margin: 0;
+  height: 100%;
+  height: 100vh;
+}
+
+.title {
+  height: 100%;
+}
+
+.execute-button-wrap {
+  margin-left: 1em !important;
+}
+
+.pokedex {
+  font-family: 'Pokedex';
+  height: 100%;
+  background: white;
+}
+
+.pokedex .empty {
+  font-size: 3em;
+  display: inline-block;
+  margin-left: calc(50%);
+  margin-top: calc(50%);
+  transform: translate(-50%, -200%);
+
+}
+
+.pokemon {
+  width: 100%;
+  height: 100%;
+}
+
+.pokemon-title {
+  font-size: 2.5em;
+  color: white !important;
+}
+
+.pokemon-preview,
+.pokemon-stats {
+  width: 50%;
+  height: 100%;
+  display: inline-block;
+  font-size: 1.25em;
+}
+
+.pokemon-stats {
+  width: 47%;
+  margin-top: 3%;
+  margin-left:3%;
+  float: right;
+  /*padding: 1em;*/
+}
+
+.pokemon-sprite {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  text-align: center;
+}
+
+.pokemon-sprite img {
+margin: auto;
+margin-top:50%;
+transform: translateY(-65%);
+vertical-align: middle;
+width: 75%;
+max-width: 100px;
+height: auto;
+}
+
+.pokemon-evolution {
+  display: flex;
+  width: 100%;
+  margin-top: 1em;
+}
+
+.evolution-pokemon-name {
+  display: block;
+  margin-bottom: 0.5em;
+}
+
+.evolution-pokemon {
+  border: 1px solid rgb(204,50,101);
+  padding: 0.5em;
+  border-radius: 0.5em;
+  text-align: center;
+}
+
+.evolution-pokemon-sprite {
+  width: 50px;
+}
+
+.pokemon-types ul, .pokemon-types li,
+.pokemon-abilities ul, .pokemon-abilities li {
+  list-style: none;
+  display: inline;
+  padding: 0;
+}
+
+.pokemon-types li ,
+.pokemon-abilities li {
+  margin-left: 0.5em;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgb(204,50,101);
+  color: white;
+}
+
+.pokemon-types li.normal,
+.pokemon-types li.type-1 {
+  background: rgb(166,166,119)
+}
+.pokemon-types li.fighting,
+.pokemon-types li.type-2 {
+  background: rgb(192,48,40)
+}
+.pokemon-types li.flying,
+.pokemon-types li.type-3 {
+  background: rgb(168,144,240)
+}
+.pokemon-types li.poison,
+.pokemon-types li.type-4 {
+  background: rgb(160,64,160)
+}
+.pokemon-types li.ground,
+.pokemon-types li.type-5 {
+  background: rgb(224,192,104)
+}
+.pokemon-types li.rock,
+.pokemon-types li.type-6 {
+  background: rgb(184,160,56)
+}
+.pokemon-types li.bug,
+.pokemon-types li.type-7 {
+  background: rgb(168,184,32)
+}
+.pokemon-types li.ghost,
+.pokemon-types li.type-8 {
+  background: rgb(112,88,152)
+}
+.pokemon-types li.steel,
+.pokemon-types li.type-9 {
+  background: rgb(184,184,204)
+}
+.pokemon-types li.fire,
+.pokemon-types li.type-10 {
+  background: rgb(240,128,48)
+}
+.pokemon-types li.water,
+.pokemon-types li.type-11 {
+  background: rgb(104,144,240)
+}
+.pokemon-types li.grass,
+.pokemon-types li.type-12 {
+  background: rgb(120,200,80)
+}
+.pokemon-types li.electric,
+.pokemon-types li.type-13 {
+  background: rgb(248,208,48)
+}
+.pokemon-types li.psychic,
+.pokemon-types li.type-14 {
+  background: rgb(248,88,136)
+}
+.pokemon-types li.ice,
+.pokemon-types li.type-15 {
+  background: rgb(152,216,216)
+}
+.pokemon-types li.dragon,
+.pokemon-types li.type-16 {
+  background: rgb(112,56,248)
+}
+.pokemon-types li.dark,
+.pokemon-types li.type-17 {
+  background: rgb(112,88,72)
+}
+.pokemon-types li.fairy,
+.pokemon-types li.type-18 {
+  background: rgb(255,174,201)
+}
+.pokemon-types li.unknown,
+.pokemon-types li.type-19 {
+  background: rgb(88,101,109)
+}
+.pokemon-types li.shadow,
+.pokemon-types li.type- 20{
+  background: rgb(116,101,211)
+}

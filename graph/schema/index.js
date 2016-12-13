@@ -35,25 +35,25 @@ import {
  * The first method defines the way we resolve an ID to its object.
  * The second defines the way we resolve an object to its GraphQL type.
  */
-var {nodeInterface, nodeField} = nodeDefinitions(
+const { nodeInterface, nodeField } = nodeDefinitions(
   (globalId) => {
-    var {type, id} = fromGlobalId(globalId);
+    const { type, id } = fromGlobalId(globalId)
     if (type === 'User') {
-      return getUser(id);
+      return getUser(id)
     } else if (type === 'Widget') {
-      return getWidget(id);
-    } else {
-      return null;
+      return getWidget(id)
     }
+
+    return null
   },
   (obj) => {
     if (obj instanceof User) {
       return userType;
     } else if (obj instanceof Widget)  {
       return widgetType;
-    } else {
-      return null;
     }
+
+    return null
   }
 );
 
@@ -61,7 +61,7 @@ var {nodeInterface, nodeField} = nodeDefinitions(
  * Define your own types here
  */
 
-var userType = new GraphQLObjectType({
+const userType = new GraphQLObjectType({
   name: 'User',
   description: 'A person who uses our app',
   fields: () => ({
@@ -76,7 +76,7 @@ var userType = new GraphQLObjectType({
   interfaces: [nodeInterface],
 });
 
-var widgetType = new GraphQLObjectType({
+const widgetType = new GraphQLObjectType({
   name: 'Widget',
   description: 'A shiny widget',
   fields: () => ({

@@ -18,6 +18,7 @@ import {
   getPokemonTypes,
   getPokemonByType,
   getPokemonEvolutions,
+  getPokemonAbilities,
   getPokemonSprite,
   getType,
   getItem,
@@ -29,9 +30,9 @@ import {
  * Utils
  */
 
-const idToName = id => id
-  .replace('-', ' ')
-  .replace(/\w\S*/g, txt => (txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()))
+// const idToName = id => id
+//   .replace('-', ' ')
+//   .replace(/\w\S*/g, txt => (txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()))
 
 
 /*
@@ -112,13 +113,13 @@ const MoveCategory = new GraphQLEnumType({
  * Move Category Enum
  */
 
-const Gender = new GraphQLEnumType({
-  name: 'Gender',
-  values: {
-    MALE: { value: '0' },
-    FEMALE: { value: '1' },
-  },
-})
+// const Gender = new GraphQLEnumType({
+//   name: 'Gender',
+//   values: {
+//     MALE: { value: '0' },
+//     FEMALE: { value: '1' },
+//   },
+// })
 
 
 /*
@@ -184,9 +185,14 @@ const Ability = new GraphQLObjectType({
   name: 'Ability',
   description: 'An Ability',
   fields: () => ({
+    id: {
+      type: GraphQLID,
+      description: 'The ID of the ability',
+    },
     name: {
       type: GraphQLString,
       description: 'The name of the ability',
+      resolve: ({ id }, _, { params: { lang } }) => getName('abilities', id, lang).name,
     },
   }),
 })
@@ -221,16 +227,16 @@ const Item = new GraphQLObjectType({
  * Species Type
  */
 
-const Species = new GraphQLObjectType({
-  name: 'Species',
-  description: 'A Pokemon species',
-  fields: () => ({
-    id: {
-      type: GraphQLID,
-      description: 'The id of the Pokemon species',
-    },
-  }),
-})
+// const Species = new GraphQLObjectType({
+//   name: 'Species',
+//   description: 'A Pokemon species',
+//   fields: () => ({
+//     id: {
+//       type: GraphQLID,
+//       description: 'The id of the Pokemon species',
+//     },
+//   }),
+// })
 
 
 /*
@@ -282,12 +288,12 @@ const Pokemon = new GraphQLObjectType({
       resolve: pokemon => getPokemonEvolutions(pokemon),
     },
     abilities: {
-      type: new GraphQLList(Move),
+      type: new GraphQLList(Ability),
       description: 'The abilities of the Pokemon',
-      resolve: undefined,
+      resolve: pokemon => console.log(getPokemonAbilities(pokemon)) || getPokemonAbilities(pokemon),
     },
     moves: {
-      type: new GraphQLList(Ability),
+      type: new GraphQLList(Move),
       description: 'The moves of the Pokemon',
       resolve: undefined,
     },

@@ -19,6 +19,14 @@ const promise = Promise.all([
   .then((pokemonTypes) => { data.tables.pokemonTypes = pokemonTypes })
   .then(log('Pokemon Types List loaded...')),
 
+  parseList('node_modules/pokeapi/data/v2/csv/pokemon_moves.csv')
+  .then((pokemonMoves) => { data.tables.pokemonMoves = pokemonMoves })
+  .then(log('Pokemon Moves List loaded...')),
+
+  parseList('node_modules/pokeapi/data/v2/csv/pokemon_abilities.csv')
+  .then((pokemonAbilities) => { data.tables.pokemonAbilities = pokemonAbilities })
+  .then(log('Pokemon Abilities List loaded...')),
+
   parseList('node_modules/pokeapi/data/v2/csv/items.csv')
   .then((items) => { data.tables.items = items })
   .then(log('Items List loaded...')),
@@ -36,6 +44,10 @@ const promise = Promise.all([
     .then((evolution) => { data.sets.evolution = evolution })
     .then(log('Pokemon Evolution loaded...')),
 
+  parseObject('node_modules/pokeapi/data/v2/csv/pokemon_evolution.csv', 1)
+    .then((evolution) => { data.sets.evolution = evolution })
+    .then(log('Pokemon Evolution loaded...')),
+
   parseObject('node_modules/pokeapi/data/v2/csv/types.csv')
     .then((types) => { data.sets.types = types })
     .then(log('Types loaded...')),
@@ -43,6 +55,10 @@ const promise = Promise.all([
   parseObject('node_modules/pokeapi/data/v2/csv/abilities.csv')
     .then((abilities) => { data.sets.abilities = abilities })
     .then(log('Abilities loaded...')),
+
+  parseObject('node_modules/pokeapi/data/v2/csv/moves.csv')
+    .then((moves) => { data.sets.moves = moves })
+    .then(log('Moves loaded...')),
 
   parseObject('node_modules/pokeapi/data/v2/csv/items.csv')
     .then((items) => { data.sets.items = items })
@@ -60,6 +76,10 @@ const promise = Promise.all([
   parseGroupedObject('node_modules/pokeapi/data/v2/csv/ability_names.csv')
     .then((abilities) => { data.langs.abilities = abilities })
     .then(log('Ability Names loaded...')),
+
+  parseGroupedObject('node_modules/pokeapi/data/v2/csv/move_names.csv')
+    .then((moves) => { data.langs.moves = moves })
+    .then(log('Move Names loaded...')),
 
   parseGroupedObject('node_modules/pokeapi/data/v2/csv/type_names.csv')
     .then((types) => { data.langs.types = types })

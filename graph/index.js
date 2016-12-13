@@ -2,6 +2,7 @@
 
 const express = require('express')
 const graphQLHTTP = require('express-graphql')
+const cors = require('cors')
 
 const data = require('./data')
 const PORT = process.env.PORT || 8000
@@ -12,6 +13,11 @@ function startGraphQLServer(callback) {
   const Schema = require('./schema/schema.js').default // eslint-disable-line
 
   const app = express()
+
+  app.use(cors())
+
+  app.use('/assets', express.static('assets'))
+  app.use('/dex', express.static('bin'))
 
   app.use('/', graphQLHTTP({
     graphiql: true,
